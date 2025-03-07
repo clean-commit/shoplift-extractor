@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shoplift Tests Extractor - Development</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      h1,
+      h2 {
+        color: #6d28d9;
+      }
+      .btn {
+        display: inline-block;
+        background: #6d28d9;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 4px;
+        text-decoration: none;
+        margin: 20px 0;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      .btn:hover {
+        background: #5b21b6;
+      }
+      pre {
+        background: #f5f5f5;
+        padding: 15px;
+        border-radius: 4px;
+        overflow: auto;
+      }
+      #status {
+        padding: 10px;
+        border-radius: 4px;
+        margin-top: 20px;
+        display: none;
+      }
+      .success {
+        background-color: #d1fae5;
+        border: 1px solid #10b981;
+      }
+      .error {
+        background-color: #fee2e2;
+        border: 1px solid #ef4444;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Shoplift Tests Extractor</h1>
+
+    <p>
+      This is a development environment for the Shoplift Tests Extractor tool.
+      Use the buttons below to test the extractor functionality.
+    </p>
+
+    <h2>Testing Options</h2>
+
+    <button id="runExtractor" class="btn">Run Extractor Script</button>
+    <button id="loadDemo" class="btn">Load Demo Page</button>
+
+    <div id="status"></div>
+
+    <h2>How It Works</h2>
+    <p>
+      The extractor script analyzes the structure of Shoplift test results pages
+      and extracts relevant data into a JSON format that can be downloaded and
+      used for further analysis.
+    </p>
+
+    <h2>Bookmarklet</h2>
+    <p>
+      You can also use this tool as a bookmarklet. Drag this link to your
+      bookmarks bar:
+    </p>
+    <a class="btn" href="javascript:void(0);" id="bookmarkletLink"
+      >Shoplift Extractor</a
+    >
+
+    <script type="module">
+      import { runExtractor, initBookmarklet } from './src/extractor.js';
+
+      document.getElementById('runExtractor').addEventListener('click', () => {
+        const statusEl = document.getElementById('status');
+        statusEl.style.display = 'block';
+
+        try {
+          runExtractor();
+          statusEl.className = 'success';
+          statusEl.textContent =
+            "Extractor triggered. If you're on a Shoplift test page, data should have been extracted.";
+        } catch (error) {
+          statusEl.className = 'error';
+          statusEl.textContent = `Error: ${error.message}`;
+        }
+      });
+
+      document.getElementById('loadDemo').addEventListener('click', () => {
+        window.open('demo.html', '_blank');
+      });
+
+      // Initialize bookmarklet link
+      initBookmarklet(document.getElementById('bookmarkletLink'));
+    </script>
+  </body>
+</html>
