@@ -79,10 +79,7 @@ To use this tool, drag the link below to your bookmarks bar:
 
 *Note: The bookmarklet size is ${(bookmarkletUrl.length / 1024).toFixed(2)} KB*
 
-### Usage
-1. Navigate to a Shoplift test results page
-2. Click the bookmarklet in your bookmarks bar
-3. The data will be downloaded as a JSON file`;
+`;
 
           // Replace or add bookmarklet section
           if (readme.includes('## Bookmarklet')) {
