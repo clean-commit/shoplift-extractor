@@ -109,7 +109,6 @@ const getTestType = () => {
       goalData[labels[0].textContent.trim().toLowerCase().replace(':', '')] =
         labels[1].textContent.trim();
     }
-    console.log(goalData);
     return goalData;
   } catch (error) {
     console.error('Error extracting test type:', error);
@@ -124,7 +123,6 @@ const getTestOverview = () => {
     const testOverview = document.querySelectorAll(
       '.test-report-overview-row > div',
     );
-    console.log(testOverview);
     const data = {};
 
     for (const row of testOverview) {
@@ -148,65 +146,11 @@ const getTestOverview = () => {
 };
 
 // Extract metrics from tables
-// const extractMetrics = () => {
-//   const metrics = {
-//     all_devices: {
-//       visitors: {
-//         original: 0,
-//         variant: 0,
-//         change: 0,
-//       },
-//       clicks: {
-//         original: 0,
-//         variant: 0,
-//         change: 0,
-//       },
-//     },
-//   };
-
-//   try {
-//     const metrics = document.querySelectorAll('.performance-table');
-//   } catch (error) {
-//     console.error('Error extracting metrics:', error);
-//   }
-
-//   return metrics;
-// };
-
-// Extract metrics from tables
-// Extract metrics from tables
 const extractMetrics = () => {
   const metrics = {};
-
   try {
-    // Helper function to parse numeric values from various formats
-    const parseValue = (value) => {
-      if (!value) return 0;
-      // Remove any currency symbols, commas, and % signs
-      return parseFloat(value.replace(/[$,€£%]/g, ''));
-    };
-
-    // Helper function to calculate percentage change
-    const calculateChange = (original, variant) => {
-      const originalValue = parseValue(original);
-      const variantValue = parseValue(variant);
-
-      // Handle division by zero case
-      if (originalValue === 0) {
-        return variantValue > 0 ? '+100%' : '0%';
-      }
-
-      const change = ((variantValue - originalValue) / originalValue) * 100;
-      // Format to 1 decimal place with + or - prefix
-      const sign = change > 0 ? '+' : '';
-      return `${sign}${change.toFixed(1)}%`;
-    };
-
     // Find all performance tables
     const tables = document.querySelectorAll('.performance-table');
-
-    // Debug
-    console.log(`Found ${tables.length} performance tables`);
 
     tables.forEach((table) => {
       // Check if this is a device performance table
@@ -214,14 +158,10 @@ const extractMetrics = () => {
         th.textContent.trim(),
       );
 
-      console.log('Table headers:', headers);
-
       if (!headers.includes('Device')) return;
-      console.log('Processing device performance table');
 
       // Get all device sections (tbody elements)
       const deviceSections = table.querySelectorAll('tbody');
-      console.log(`Found ${deviceSections.length} device sections`);
 
       deviceSections.forEach((tbody) => {
         // Extract device name from the first cell
@@ -229,7 +169,6 @@ const extractMetrics = () => {
         if (!deviceNameCell) return;
 
         const deviceNameText = deviceNameCell.textContent.trim();
-        console.log('Found device section:', deviceNameText);
 
         const deviceName = deviceNameText
           .toLowerCase()
@@ -241,37 +180,37 @@ const extractMetrics = () => {
 
         // Map metrics to their column positions
         const metricPositions = {};
+        let searchable = [
+          'visitors',
+          'clicks',
+          ['ctr', 'clickthrough rate'],
+          'cart adds',
+          ['acr', 'add to cart rate'],
+          'bounce rate',
+          'orders',
+          ['cvr', 'conversion rate'],
+          'revenue',
+          ['aov', 'average order value'],
+          ['rpv', 'revenue per visitor'],
+        ];
         headers.forEach((header, index) => {
           const headerText = header.toLowerCase();
-          if (headerText.includes('visitors'))
-            metricPositions['visitors'] = index;
-          if (headerText.includes('clicks')) metricPositions['clicks'] = index;
-          if (headerText === 'ctr' || headerText.includes('clickthrough rate'))
-            metricPositions['ctr'] = index;
-          if (headerText.includes('cart adds'))
-            metricPositions['cart_adds'] = index;
-          if (headerText === 'acr' || headerText.includes('add to cart rate'))
-            metricPositions['acr'] = index;
-          if (headerText.includes('bounce'))
-            metricPositions['bounce_rate'] = index;
-          if (headerText.includes('orders')) metricPositions['orders'] = index;
-          if (headerText === 'cvr' || headerText.includes('conversion rate'))
-            metricPositions['cvr'] = index;
-          if (headerText.includes('revenue') && !headerText.includes('per'))
-            metricPositions['revenue'] = index;
-          if (
-            headerText === 'aov' ||
-            headerText.includes('average order value')
-          )
-            metricPositions['aov'] = index;
-          if (
-            headerText === 'rpv' ||
-            headerText.includes('revenue per visitor')
-          )
-            metricPositions['rpv'] = index;
+          searchable.forEach((search, i) => {
+            if (Array.isArray(search)) {
+              if (search.some((s) => headerText.includes(s))) {
+                searchable.splice(i, 1);
+                metricPositions[search[0]] = index;
+                return;
+              }
+            } else {
+              if (headerText.includes(search)) {
+                searchable.splice(i, 1);
+                metricPositions[search] = index;
+                return;
+              }
+            }
+          });
         });
-
-        console.log('Metric positions:', metricPositions);
 
         // Extract data from variant and original rows
         const rows = tbody.querySelectorAll('tr');
@@ -284,16 +223,12 @@ const extractMetrics = () => {
             row.querySelector('th:nth-child(2)') || row.querySelector('th');
 
           if (!variantCell) return;
-
           const cellText = variantCell.textContent.trim();
-          console.log('Row type cell text:', cellText);
 
           if (cellText.includes('Variant')) {
             variantRow = row;
-            console.log('Found variant row');
           } else if (cellText.includes('Original')) {
             originalRow = row;
-            console.log('Found original row');
           }
         });
 
@@ -305,8 +240,6 @@ const extractMetrics = () => {
           // Skip if position is undefined
           if (position === undefined) return;
 
-          console.log(`Processing metric ${metric} at position ${position}`);
-
           metrics[deviceName][metric] = {
             original: '0',
             variant: '0',
@@ -315,29 +248,23 @@ const extractMetrics = () => {
 
           // Extract original value - adjust for th cells
           if (originalRow) {
-            // Use the correct selector to get all cells including th
             const cells = originalRow.querySelectorAll('th, td');
             // The +1 because the first cell is the empty th, then variant name, then data
             const cell = cells[position];
 
             if (cell) {
               const rawValue = cell.textContent.trim();
-              console.log(`Original ${metric} raw value:`, rawValue);
-              // Handle numbers and percentages differently
               metrics[deviceName][metric].original = rawValue.split(' ')[0];
             }
           }
 
           // Extract variant value and change percentage
           if (variantRow) {
-            // Use the correct selector to get all cells including th
             const cells = variantRow.querySelectorAll('th, td');
-            // The +1 because the first cell is the empty th, then variant name, then data
             const cell = cells[position];
 
             if (cell) {
               const rawValue = cell.textContent.trim();
-              console.log(`Variant ${metric} raw value:`, rawValue);
 
               // Extract main value - before any labels
               metrics[deviceName][metric].variant = rawValue.split(' ')[0];
@@ -347,12 +274,7 @@ const extractMetrics = () => {
               if (changeLabel) {
                 metrics[deviceName][metric].change =
                   changeLabel.textContent.trim();
-                console.log(
-                  `Change for ${metric}:`,
-                  metrics[deviceName][metric].change,
-                );
               } else {
-                // Calculate change if no label is present
                 const originalValue = metrics[deviceName][metric].original;
                 const variantValue = metrics[deviceName][metric].variant;
 
@@ -362,10 +284,6 @@ const extractMetrics = () => {
                     originalValue,
                     variantValue,
                   );
-                  console.log(
-                    `Calculated change for ${metric}:`,
-                    metrics[deviceName][metric].change,
-                  );
                 }
               }
             }
@@ -373,8 +291,6 @@ const extractMetrics = () => {
         });
       });
     });
-
-    console.log('Final metrics object:', metrics);
   } catch (error) {
     console.error('Error extracting metrics:', error);
   }
@@ -382,125 +298,41 @@ const extractMetrics = () => {
   return metrics;
 };
 
-// Extract traffic information from charts/tables
-const extractTrafficInfo = () => {
-  const trafficInfo = {
-    sources: {},
-    devices: {},
+const extractTrafficInfo = (metrics) => {
+  const desktopVisitors =
+    parseValue(metrics.desktop.visitors.original) +
+    parseValue(metrics.desktop.visitors.variant);
+  const mobileVisitors =
+    parseValue(metrics.mobile.visitors.original) +
+    parseValue(metrics.mobile.visitors.variant);
+  const totalVisitors = desktopVisitors + mobileVisitors;
+
+  return {
+    total: totalVisitors,
+    desktop: desktopVisitors,
+    mobile: mobileVisitors,
   };
+};
 
-  try {
-    // Device distribution
-    // Look for pie charts or device distribution tables
-    const trafficSection = document.querySelector('h4.headline-bold + .d-flex');
-    if (trafficSection) {
-      // Extract data from tooltips or visible data points
-      const deviceTooltips = document.querySelectorAll('.w-170px');
-      deviceTooltips.forEach((deviceTooltip) => {
-        const deviceRows = deviceTooltip.querySelectorAll(
-          '.flex.justify-between',
-        );
-        deviceRows.forEach((row) => {
-          const deviceName = row
-            .querySelector('.flex.gap-4px')
-            ?.textContent.trim();
-          const percentage = row
-            .querySelector('.label-black')
-            ?.textContent.trim();
-          if (deviceName && percentage) {
-            trafficInfo.devices[deviceName] = percentage;
-          }
-        });
-      });
-    }
+const parseValue = (value) => {
+  // Remove any currency symbols, commas, and % signs
+  if (!value) return 0;
+  return parseFloat(value.replace(/[$,€£%]/g, ''));
+};
 
-    // Look for traffic source data in tables - scan all tables
-    // Find a table that has channel/source information
-    const channelTables = document.querySelectorAll('.performance-table');
-    channelTables.forEach((table) => {
-      // Look for tables with "Channel" or traffic source headers
-      const headers = Array.from(table.querySelectorAll('th')).map((th) =>
-        th.textContent.trim().toLowerCase(),
-      );
+const calculateChange = (original, variant) => {
+  const originalValue = parseValue(original);
+  const variantValue = parseValue(variant);
 
-      const isChannelTable = headers.some(
-        (h) =>
-          h.includes('channel') ||
-          h.includes('source') ||
-          h.includes('traffic'),
-      );
-
-      if (isChannelTable || headers.length > 0) {
-        // Process each tbody as a potential traffic source
-        const channelRows = table.querySelectorAll('tbody');
-
-        channelRows.forEach((tbody) => {
-          const rows = tbody.querySelectorAll('tr');
-
-          // Try to identify channel name from first row
-          const firstRow = rows[0];
-          if (!firstRow) return;
-
-          const sourceName = firstRow
-            .querySelector('th span')
-            ?.textContent.trim();
-          if (!sourceName || sourceName.includes('All channels')) return;
-
-          // Extract metrics for this traffic source
-          const sourceMetrics = {};
-          const cells = firstRow.querySelectorAll('td');
-
-          // Map common metrics by position
-          if (cells.length >= 1)
-            sourceMetrics.visitors = cells[0]?.textContent.trim() || '0';
-          if (cells.length >= 3)
-            sourceMetrics.conversionRate =
-              cells[2]?.textContent.trim().split(' ')[0] || '0%';
-          if (cells.length >= 4)
-            sourceMetrics.revenue =
-              cells[3]?.textContent.trim().split(' ')[0] || '$0';
-
-          trafficInfo.sources[sourceName] = sourceMetrics;
-
-          // Check other rows for more detailed metrics
-          if (rows.length > 1) {
-            const variantData = {};
-            const originalData = {};
-
-            rows.forEach((row) => {
-              const rowTitle = row.querySelector('th')?.textContent.trim();
-              if (rowTitle && rowTitle.includes('Variant')) {
-                const cells = row.querySelectorAll('td');
-                if (cells.length >= 1)
-                  variantData.visitors = cells[0]?.textContent.trim() || '0';
-                if (cells.length >= 3)
-                  variantData.conversionRate =
-                    cells[2]?.textContent.trim().split(' ')[0] || '0%';
-              } else if (rowTitle && rowTitle.includes('Original')) {
-                const cells = row.querySelectorAll('td');
-                if (cells.length >= 1)
-                  originalData.visitors = cells[0]?.textContent.trim() || '0';
-                if (cells.length >= 3)
-                  originalData.conversionRate =
-                    cells[2]?.textContent.trim().split(' ')[0] || '0%';
-              }
-            });
-
-            if (Object.keys(originalData).length > 0) {
-              trafficInfo.sources[sourceName].original = originalData;
-            }
-            if (Object.keys(variantData).length > 0) {
-              trafficInfo.sources[sourceName].variant = variantData;
-            }
-          }
-        });
-      }
-    });
-  } catch (error) {
-    console.error('Error extracting traffic info:', error);
+  // Handle division by zero case
+  if (originalValue === 0) {
+    return variantValue > 0 ? '+100%' : '0%';
   }
 
-  return trafficInfo;
+  const change = ((variantValue - originalValue) / originalValue) * 100;
+  // Format to 1 decimal place with + or - prefix
+  const sign = change > 0 ? '+' : '';
+  return `${sign}${change.toFixed(1)}%`;
 };
 
 // Main extraction function to be exported
@@ -521,21 +353,30 @@ export const runExtractor = async (isTest = false) => {
     // Add a little delay to ensure page is fully rendered
     await new Promise((resolve) => setTimeout(resolve, 500));
 
+    // Make sure all items are visible
+    const buttons = document.querySelectorAll(
+      `.dropdown-item.d-flex.items-center.gap-8px.gap-8px`,
+    );
+    const allMetricsButtons = [...buttons].filter((b) =>
+      b.innerText.toLowerCase().includes('all metrics'),
+    );
+    [...allMetricsButtons].forEach((el) => el.click());
+
     // Extract all data
     const testInfo = getTestInfo();
     const testType = getTestType();
     const testOverview = getTestOverview();
     const metrics = extractMetrics();
-    const trafficInfo = extractTrafficInfo();
+    const trafficInfo = extractTrafficInfo(metrics);
 
     // Compile into final JSON structure
     const testData = {
       store: testInfo.store_name,
       test: testInfo.test_name,
       configuration: testType,
-      testOverview: testOverview,
-      metrics: metrics,
+      overview: testOverview,
       traffic: trafficInfo,
+      metrics: metrics,
       extractedAt: new Date().toISOString(),
     };
 
@@ -552,7 +393,7 @@ export const runExtractor = async (isTest = false) => {
     // Create download link
     const downloadLink = document.createElement('a');
     downloadLink.href = url;
-    downloadLink.download = `shoplift-test-${testInfo.testName
+    downloadLink.download = `shoplift-${testInfo.test
       .replace(/[^a-z0-9]/gi, '-')
       .toLowerCase()}-${new Date().toISOString().slice(0, 10)}.json`;
     document.body.appendChild(downloadLink);
