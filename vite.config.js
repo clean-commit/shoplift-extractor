@@ -75,7 +75,7 @@ export default defineConfig({
 
 To use this tool, drag the link below to your bookmarks bar:
 
-[Shoplift Extractor](${bookmarkletUrl})
+<a href="${bookmarkletUrl}">Shoplift Extractor</a>
 
 *Note: The bookmarklet size is ${(bookmarkletUrl.length / 1024).toFixed(2)} KB*
 
