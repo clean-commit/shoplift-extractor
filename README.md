@@ -2,6 +2,13 @@
 
 A utility for extracting test data from Shoplift A/B testing platform. This tool helps you capture and analyze test results by extracting structured data in JSON format.
 
+## How to use the bookmarklet?
+
+1. Visit [Shoplift Extractor website](https://shoplift-extractor.netlify.app/) and drag the button to your bookmarks
+2. Navigate to a Shoplift test results page
+3. Click the bookmarklet in your bookmarks bar
+4. The data will be downloaded as a JSON file, that's it!
+
 ## Features
 
 - Extract test information (name, store, type)
@@ -9,12 +16,6 @@ A utility for extracting test data from Shoplift A/B testing platform. This tool
 - Extract performance data by device type
 - Extract traffic source information
 - Download all data as a structured JSON file
-
-### How to use the bookmarklet?
-
-1. Navigate to a Shoplift test results page
-2. Click the bookmarklet in your bookmarks bar
-3. The data will be downloaded as a JSON file
 
 ## Development
 
