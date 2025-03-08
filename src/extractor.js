@@ -3,6 +3,81 @@
  * A utility module for extracting test data from Shoplift test results pages
  */
 
+// Main extraction function to be exported
+export const runExtractor = async (isTest = false) => {
+  showStatus('Extracting Shoplift test data...');
+
+  try {
+    // Wait for key elements to be loaded (with shorter timeout for test environment)
+    const timeout = isTest ? 3000 : 10000;
+    try {
+      await waitForElements('.headline-bold', timeout);
+      await waitForElements('.test-report-variant-card-stats', timeout);
+    } catch (err) {
+      // Continue even if some elements aren't found
+      console.warn('Some page elements not found:', err.message);
+    }
+
+    // Add a little delay to ensure page is fully rendered
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Make sure all items are visible
+    const buttons = document.querySelectorAll(
+      `.dropdown-item.d-flex.items-center.gap-8px.gap-8px`,
+    );
+    const allMetricsButtons = [...buttons].filter((b) =>
+      b.innerText.toLowerCase().includes('all metrics'),
+    );
+    [...allMetricsButtons].forEach((el) => el.click());
+
+    // Extract all data
+    const testInfo = getTestInfo();
+    const testType = getTestType();
+    const testOverview = getTestOverview();
+    const metrics = extractMetrics();
+    const trafficInfo = extractTrafficInfo(metrics);
+
+    // Compile into final JSON structure
+    const testData = {
+      store: testInfo.store_name,
+      test: testInfo.test_name,
+      configuration: testType,
+      overview: testOverview,
+      traffic: trafficInfo,
+      metrics: metrics,
+      extractedAt: new Date().toISOString(),
+    };
+
+    // Generate downloadable JSON
+    const jsonString = JSON.stringify(testData, null, 2);
+    if (document.querySelector('#shoplift-test-data')) {
+      document.querySelector('#shoplift-test-data').textContent =
+        JSON.stringify(testData, null, 4);
+      return testData; // Return data for testing purposes
+    }
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    // Create download link
+    const downloadLink = document.createElement('a');
+    downloadLink.href = url;
+    downloadLink.download = `shoplift-${testInfo.test
+      .replace(/[^a-z0-9]/gi, '-')
+      .toLowerCase()}-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+
+    showStatus('Test data extracted successfully!');
+
+    return testData; // Return data for testing purposes
+  } catch (error) {
+    console.error('Error extracting test data:', error);
+    showStatus(`Error extracting test data: ${error.message}`, true);
+    throw error;
+  }
+};
+
 // Show extraction status to user
 const showStatus = (msg, isError = false) => {
   const statusDiv = document.createElement('div');
@@ -333,103 +408,4 @@ const calculateChange = (original, variant) => {
   // Format to 1 decimal place with + or - prefix
   const sign = change > 0 ? '+' : '';
   return `${sign}${change.toFixed(1)}%`;
-};
-
-// Main extraction function to be exported
-export const runExtractor = async (isTest = false) => {
-  showStatus('Extracting Shoplift test data...');
-
-  try {
-    // Wait for key elements to be loaded (with shorter timeout for test environment)
-    const timeout = isTest ? 3000 : 10000;
-    try {
-      await waitForElements('.headline-bold', timeout);
-      await waitForElements('.test-report-variant-card-stats', timeout);
-    } catch (err) {
-      // Continue even if some elements aren't found
-      console.warn('Some page elements not found:', err.message);
-    }
-
-    // Add a little delay to ensure page is fully rendered
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    // Make sure all items are visible
-    const buttons = document.querySelectorAll(
-      `.dropdown-item.d-flex.items-center.gap-8px.gap-8px`,
-    );
-    const allMetricsButtons = [...buttons].filter((b) =>
-      b.innerText.toLowerCase().includes('all metrics'),
-    );
-    [...allMetricsButtons].forEach((el) => el.click());
-
-    // Extract all data
-    const testInfo = getTestInfo();
-    const testType = getTestType();
-    const testOverview = getTestOverview();
-    const metrics = extractMetrics();
-    const trafficInfo = extractTrafficInfo(metrics);
-
-    // Compile into final JSON structure
-    const testData = {
-      store: testInfo.store_name,
-      test: testInfo.test_name,
-      configuration: testType,
-      overview: testOverview,
-      traffic: trafficInfo,
-      metrics: metrics,
-      extractedAt: new Date().toISOString(),
-    };
-
-    // Generate downloadable JSON
-    const jsonString = JSON.stringify(testData, null, 2);
-    if (document.querySelector('#shoplift-test-data')) {
-      document.querySelector('#shoplift-test-data').textContent =
-        JSON.stringify(testData, null, 4);
-      return testData; // Return data for testing purposes
-    }
-    const blob = new Blob([jsonString], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-
-    // Create download link
-    const downloadLink = document.createElement('a');
-    downloadLink.href = url;
-    downloadLink.download = `shoplift-${testInfo.test
-      .replace(/[^a-z0-9]/gi, '-')
-      .toLowerCase()}-${new Date().toISOString().slice(0, 10)}.json`;
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-
-    showStatus('Test data extracted successfully!');
-
-    return testData; // Return data for testing purposes
-  } catch (error) {
-    console.error('Error extracting test data:', error);
-    showStatus(`Error extracting test data: ${error.message}`, true);
-    throw error;
-  }
-};
-
-// Initialize bookmarklet link
-export const initBookmarklet = (linkElement) => {
-  if (!linkElement) return;
-
-  // Generate the bookmarklet code
-  const bookmarkletCode = `javascript:(function(){const e=document.createElement("script");e.textContent="(function(){const showStatus=(msg,isError=false)=>{const statusDiv=document.createElement('div');statusDiv.style.position='fixed';statusDiv.style.top='10px';statusDiv.style.left='50%';statusDiv.style.transform='translateX(-50%)';statusDiv.style.background=isError?'#f44336':'#6d28d9';statusDiv.style.color='white';statusDiv.style.padding='10px 20px';statusDiv.style.borderRadius='5px';statusDiv.style.zIndex='9999';statusDiv.style.boxShadow='0 2px 10px rgba(0,0,0,0.2)';statusDiv.textContent=msg;document.body.appendChild(statusDiv);setTimeout(()=>{statusDiv.remove();},isError?5000:3000);};const extractTestData=async()=>{showStatus('Extracting Shoplift test data...');try{await new Promise(resolve=>setTimeout(resolve,1000));${runExtractor
-    .toString()
-    .replace(
-      /export const runExtractor = /,
-      '',
-    )}extractTestData();})();"};document.body.appendChild(e);e.remove()})();`;
-
-  // Set the href attribute of the link
-  linkElement.href = bookmarkletCode;
-
-  // Add click handler to prevent navigation
-  linkElement.addEventListener('click', (e) => {
-    e.preventDefault();
-    alert(
-      "To use this bookmarklet, drag it to your bookmarks bar. Then click it when you're viewing a Shoplift test results page.",
-    );
-  });
 };

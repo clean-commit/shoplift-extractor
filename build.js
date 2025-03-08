@@ -1,42 +1,42 @@
-const fs = require('fs');
-const path = require('path');
-const { minify } = require('terser');
+import fs from 'fs';
+import path from 'path';
+import { minify } from 'terser';
 
 async function buildBookmarklet() {
   try {
     // Read the extractor.js file
     const filePath = path.resolve('./extractor.js');
     const sourceCode = fs.readFileSync(filePath, 'utf8');
-    
+
     // Minify the code
     const minifyOptions = {
       compress: {
         drop_console: false,
-        passes: 2
+        passes: 2,
       },
       mangle: true,
       output: {
-        comments: false
-      }
+        comments: false,
+      },
     };
-    
+
     const minified = await minify(sourceCode, minifyOptions);
-    
+
     if (!minified || !minified.code) {
       throw new Error('Minification failed');
     }
-    
+
     // URL encode the code
     let bookmarklet = `javascript:${encodeURIComponent(minified.code)}`;
-    
+
     // Check if bookmarklet is too large
     const sizeKB = (bookmarklet.length / 1024).toFixed(2);
     console.log(`Bookmarklet size: ${sizeKB} KB`);
-    
+
     // Save both minified and bookmarklet versions
     fs.writeFileSync(path.resolve('./extractor.min.js'), minified.code);
     fs.writeFileSync(path.resolve('./bookmarklet.txt'), bookmarklet);
-    
+
     // Generate an HTML file for easy bookmarklet creation
     const htmlContent = `
     <!DOCTYPE html>
@@ -67,7 +67,11 @@ async function buildBookmarklet() {
           <li>The data will be downloaded as a JSON file</li>
         </ol>
         
-        ${bookmarklet.length > 10000 ? '<p class="warning">Note: This bookmarklet is large and may not work in all browsers.</p>' : ''}
+        ${
+          bookmarklet.length > 10000
+            ? '<p class="warning">Note: This bookmarklet is large and may not work in all browsers.</p>'
+            : ''
+        }
         
         <h2>Bookmarklet Size</h2>
         <p>${sizeKB} KB</p>
@@ -75,11 +79,10 @@ async function buildBookmarklet() {
     </body>
     </html>
     `;
-    
+
     fs.writeFileSync(path.resolve('./bookmarklet.html'), htmlContent);
-    
+
     console.log('Bookmarklet build complete!');
-    
   } catch (error) {
     console.error('Error building bookmarklet:', error);
   }
