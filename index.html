@@ -87,7 +87,7 @@
     >
 
     <script type="module">
-      import { runExtractor, initBookmarklet } from './src/extractor.js';
+      import { runExtractor } from './src/extractor.js';
 
       document.getElementById('runExtractor').addEventListener('click', () => {
         const statusEl = document.getElementById('status');
@@ -107,9 +107,6 @@
       document.getElementById('loadDemo').addEventListener('click', () => {
         window.open('demo.html', '_blank');
       });
-
-      // Initialize bookmarklet link
-      initBookmarklet(document.getElementById('bookmarkletLink'));
     </script>
   </body>
 </html>
