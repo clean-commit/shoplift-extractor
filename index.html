@@ -64,8 +64,6 @@
     </p>
 
     <h2>Testing Options</h2>
-
-    <button id="runExtractor" class="btn">Run Extractor Script</button>
     <button id="loadDemo" class="btn">Load Demo Page</button>
 
     <div id="status"></div>
@@ -77,33 +75,7 @@
       used for further analysis.
     </p>
 
-    <h2>Bookmarklet</h2>
-    <p>
-      You can also use this tool as a bookmarklet. Drag this link to your
-      bookmarks bar:
-    </p>
-    <a class="btn" href="javascript:void(0);" id="bookmarkletLink"
-      >Shoplift Extractor</a
-    >
-
     <script type="module">
-      import { runExtractor } from './src/extractor.js';
-
-      document.getElementById('runExtractor').addEventListener('click', () => {
-        const statusEl = document.getElementById('status');
-        statusEl.style.display = 'block';
-
-        try {
-          runExtractor();
-          statusEl.className = 'success';
-          statusEl.textContent =
-            "Extractor triggered. If you're on a Shoplift test page, data should have been extracted.";
-        } catch (error) {
-          statusEl.className = 'error';
-          statusEl.textContent = `Error: ${error.message}`;
-        }
-      });
-
       document.getElementById('loadDemo').addEventListener('click', () => {
         window.open('demo.html', '_blank');
       });

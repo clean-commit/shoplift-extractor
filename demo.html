@@ -79,6 +79,7 @@
       <div class="container mx-auto">
         <button
           id="runExtractor"
+          onclick="window.location.reload()"
           style="
             margin-top: 40px;
             padding: 10px 20px;
@@ -97,13 +98,7 @@
       </div>
 
       <script type="module">
-        import { runExtractor } from './src/extractor.js';
-
-        document
-          .getElementById('runExtractor')
-          .addEventListener('click', () => {
-            runExtractor();
-          });
+        import './src/extractor.js';
       </script>
     </div>
     <!-- Mock Navigation -->
