@@ -7,12 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "bookmarklet": "node build.js"
+    "bookmarklet": "vite build"
   },
   "license": "MIT",
-  "dependencies": {
-    "terser": "^5.24.0"
-  },
   "devDependencies": {
     "vite": "^5.0.11"
   },
