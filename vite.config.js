@@ -84,7 +84,7 @@ export default defineConfig({
   <h1>Shoplift Data Extractor Bookmarklet ${version}</h1>
   <div class="instructions">
     <p>Drag this link to your bookmarks bar:</p>
-    <a class="bookmarklet" href="${bookmarklet}">Shoplift Extractor</a>
+    <a class="bookmarklet" href="${bookmarklet}">Shoplift Extractor (${version})</a>
     
     <h2>Instructions</h2>
     <ol>
