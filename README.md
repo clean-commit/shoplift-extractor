@@ -71,6 +71,7 @@ shoplift-tests/
 │   ├── extractor.js     # Main extractor logic
 │   └── index.js         # Entry point
 ├── public/              # Static assets
+├── markup/              # Extracted markup for dashboard versions
 ├── demo/                # Demo test results page
 ├── dist/                # Build output (generated)
 ├── vite.config.js       # Vite configuration

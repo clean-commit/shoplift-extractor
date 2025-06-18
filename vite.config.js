@@ -96,12 +96,12 @@ export default defineConfig({
     
     ${
       bookmarklet.length > 10000
-        ? '<p class="warning">Note: This bookmarklet is large and may not work in all browsers.</p>'
+        ? '<p class="warning">Note: This bookmarklet is large and may not work in all browsers. Tested in Chrome Browser</p>'
         : ''
     }
     
     <h2>Bookmarklet Size</h2>
-    <p>${sizeKB} KB</p>
+    <p>${sizeKB} KB / ${bookmarklet.length} characters</p>
   </div>
 </body>
 </html>
