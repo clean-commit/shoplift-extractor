@@ -4,17 +4,15 @@ javascript: (function () {
     const isTest = window.location.href.includes('localhost');
 
     try {
-      const timeout = isTest ? 3000 : 10000;
+      await ensureOverviewPage();
+
       try {
-        await waitForElements('h4.mb-3.h-26px', timeout);
-        await waitForElements('h6.mb-3.m-0.h-26px', timeout);
+        await waitForElements('h4.mb-3.h-26px');
+        await waitForElements('h6.mb-3.m-0.h-26px');
       } catch (err) {
         // Continue even if some elements aren't found
         console.warn('Some page elements not found:', err.message);
       }
-
-      // Wait a bit for the page to stabilize
-      await new Promise((resolve) => setTimeout(resolve, 600));
 
       // Store our data object that will be populated through multiple pages
       let testData = {
@@ -49,6 +47,7 @@ javascript: (function () {
           JSON.stringify(testData, null, 4);
         return testData;
       }
+
       const blob = new Blob([jsonString], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
 
@@ -77,10 +76,7 @@ javascript: (function () {
     showStatus('Extracting test information...');
     try {
       // Extract test info
-      const info = getExperimentInfo();
-      testData.store = info.store;
-      testData.test = info.test;
-      testData.store_url = info.store_url;
+      getExperimentInfo(testData);
 
       // Extract test config/type
       testData.configuration = getExperimentConfiguration();
@@ -95,7 +91,7 @@ javascript: (function () {
   };
 
   // Extract test name and store name
-  const getExperimentInfo = () => {
+  const getExperimentInfo = (testData) => {
     let store_name = null; // Currently cannot be extracted from the page
     let store_url = null;
     let test_name = '';
@@ -113,11 +109,9 @@ javascript: (function () {
       console.error('Error extracting test info:', error);
     }
 
-    return {
-      store: store_name,
-      test: test_name || 'Unknown Test',
-      store_url: store_url || 'Unknown URL',
-    };
+    testData.store = store_name;
+    testData.test = test_name;
+    testData.store_url = store_url;
   };
 
   // Extract test goal/type/configuration
@@ -185,7 +179,7 @@ javascript: (function () {
       return goalData;
     } catch (error) {
       console.error('Error extracting test type:', error);
-      return 'Unknown Goal';
+      return null;
     }
   };
 
@@ -433,6 +427,53 @@ javascript: (function () {
     }
   };
 
+  const ensureOverviewPage = async (isTest = false) => {
+    if (isTest) return;
+    showStatus('Ensuring we are on the overview page...');
+    // Check if we're on a page we want to avoid
+    const currentHref = window.location.href;
+    const unwantedPaths = [
+      '/devices',
+      '/visitors',
+      '/channels',
+      '/subscriptions',
+    ];
+    const onWrongPath = unwantedPaths.some((path) =>
+      currentHref.toLowerCase().includes(path.toLowerCase()),
+    );
+
+    // Do nothing if we're already on the overview page
+    if (!onWrongPath) return;
+
+    if (onWrongPath) {
+      try {
+        // Find the devices tab link
+        await clickNavigationLink('Overview');
+        // Wait a bit for the page to stabilize
+      } catch (error) {
+        console.error('Error navigating to devices page:', error);
+        throw new Error('Could not navigate to devices page');
+      }
+      return;
+    }
+  };
+
+  const clickNavigationLink = async (labelText) => {
+    const links = Array.from(document.querySelectorAll('.nav-link')).filter(
+      (el) => {
+        const label = el.querySelector('label');
+        return label && label.textContent.includes(labelText);
+      },
+    );
+
+    if (links.length > 0) {
+      // Click the devices tab
+      links[0].click();
+      // Wait for devices page to load
+      await wait(600);
+    }
+  };
+
   // Navigate to the devices page
   const navigateToDevicesPage = async (isTest = false) => {
     showStatus('Switching to devices view...');
@@ -440,23 +481,9 @@ javascript: (function () {
 
     try {
       // Find the devices tab link
-      const deviceLinks = Array.from(
-        document.querySelectorAll('.nav-link'),
-      ).filter((el) => el.href && el.href.includes('/devices'));
-
-      if (deviceLinks.length > 0) {
-        // Click the devices tab
-        deviceLinks[0].click();
-
-        // Wait for devices page to load
-        await waitForElements('.performance-table', 10000);
-        // Additional wait for page rendering
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        // Ensure all metrics are visible
-        await ensureAllMetricsVisible();
-        console.log('Successfully navigated to devices page');
-        return;
-      }
+      await clickNavigationLink('Devices');
+      await waitForElements('.performance-table', 10000);
+      await ensureAllMetricsVisible();
     } catch (error) {
       console.error('Error navigating to devices page:', error);
       throw new Error('Could not navigate to devices page');
@@ -473,7 +500,7 @@ javascript: (function () {
     [...allMetricsButtons].forEach((el) => el.click());
 
     // Wait a bit for the dropdown to close and metrics to load
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await wait(500);
   };
 
   // Show extraction status to user
@@ -528,6 +555,10 @@ javascript: (function () {
 
       checkElements();
     });
+  };
+
+  const wait = async (ms = 500) => {
+    await new Promise((resolve) => setTimeout(resolve, ms));
   };
 
   const parseValue = (value) => {
