@@ -91,28 +91,206 @@ The extracted data is structured as follows:
 
 ```json
 {
-  "storeName": "Store Name",
-  "testName": "Test Name",
-  "testType": "Conversion Rate Optimization",
-  "testOverview": {
-    "status": "Completed",
-    "date_created": "Jan 1, 2023",
-    "duration": "30 days"
+  "test": "Experiment name",
+  "store": null,
+  "store_url": "store.myshopify.com",
+  "configuration": {
+    "test_type": "Theme",
+    "goal": "Conversion rate",
+    "traffic split": "50/50",
+    "devices": "All devices",
+    "visitors": "New and returning",
+    "audiences": "All audiences",
+    "test_started": "April 17, 2025 at 4:34 PM",
+    "test_ended": "May 12, 2025 at 12:17 PM"
+  },
+  "overview": {
+    "trend": "Significance unlikely",
+    "tested_visitors": "26208",
+    "test_duration": "24 days 19 hours",
+    "lift": "+3.6%",
+    "win_chance_(b)": "70.3%",
+    "time_to_significance": "-- days"
+  },
+  "traffic": {
+    "total": 26208,
+    "desktop": 3636,
+    "mobile": 22572
   },
   "metrics": {
     "all_devices": {
-      "visitors": { "original": "1000", "variant": "1000", "change": "0%" },
-      "conversion_rate": {
-        "original": "2.5%",
-        "variant": "3.2%",
-        "change": "+28%"
+      "visitors": {
+        "original": "13,211",
+        "variant": "12,997",
+        "change": "-1.6%"
+      },
+      "clicks": {
+        "original": "7,137",
+        "variant": "7,130",
+        "change": "-0.1%"
+      },
+      "ctr": {
+        "original": "54.02%",
+        "variant": "54.86%",
+        "change": "+1.5%"
+      },
+      "bounce rate": {
+        "original": "45.98%",
+        "variant": "45.14%",
+        "change": "-1.8%"
+      },
+      "added to cart": {
+        "original": "1,641",
+        "variant": "1,677",
+        "change": "+2.2%"
+      },
+      "acr": {
+        "original": "12.42%",
+        "variant": "12.90%",
+        "change": "+3.9%"
+      },
+      "orders": {
+        "original": "563",
+        "variant": "574",
+        "change": "+2.0%"
+      },
+      "cvr": {
+        "original": "4.26%",
+        "variant": "4.42%",
+        "change": "+3.6%"
+      },
+      "revenue": {
+        "original": "$54,443.42",
+        "variant": "$54,981.57",
+        "change": "+1.0%"
+      },
+      "aov": {
+        "original": "$96.70",
+        "variant": "$95.79",
+        "change": "-0.9%"
+      },
+      "rpv": {
+        "original": "$4.12",
+        "variant": "$4.23",
+        "change": "+2.7%"
+      }
+    },
+    "mobile": {
+      "visitors": {
+        "original": "11,413",
+        "variant": "11,159",
+        "change": "-2.2%"
+      },
+      "clicks": {
+        "original": "6,503",
+        "variant": "6,510",
+        "change": "+0.1%"
+      },
+      "ctr": {
+        "original": "56.98%",
+        "variant": "58.34%",
+        "change": "+2.4%"
+      },
+      "bounce rate": {
+        "original": "43.02%",
+        "variant": "41.66%",
+        "change": "-3.2%"
+      },
+      "added to cart": {
+        "original": "1,453",
+        "variant": "1,479",
+        "change": "+1.8%"
+      },
+      "acr": {
+        "original": "12.73%",
+        "variant": "13.25%",
+        "change": "+4.1%"
+      },
+      "orders": {
+        "original": "480",
+        "variant": "484",
+        "change": "+0.8%"
+      },
+      "cvr": {
+        "original": "4.21%",
+        "variant": "4.34%",
+        "change": "+3.1%"
+      },
+      "revenue": {
+        "original": "$40,776.15",
+        "variant": "$41,790.32",
+        "change": "+2.5%"
+      },
+      "aov": {
+        "original": "$84.95",
+        "variant": "$86.34",
+        "change": "+1.6%"
+      },
+      "rpv": {
+        "original": "$3.57",
+        "variant": "$3.74",
+        "change": "+4.8%"
+      }
+    },
+    "desktop": {
+      "visitors": {
+        "original": "1,798",
+        "variant": "1,838",
+        "change": "+2.2%"
+      },
+      "clicks": {
+        "original": "634",
+        "variant": "620",
+        "change": "-2.2%"
+      },
+      "ctr": {
+        "original": "35.26%",
+        "variant": "33.73%",
+        "change": "-4.3%"
+      },
+      "bounce rate": {
+        "original": "64.74%",
+        "variant": "66.27%",
+        "change": "+2.4%"
+      },
+      "added to cart": {
+        "original": "188",
+        "variant": "198",
+        "change": "+5.3%"
+      },
+      "acr": {
+        "original": "10.46%",
+        "variant": "10.77%",
+        "change": "+3.0%"
+      },
+      "orders": {
+        "original": "83",
+        "variant": "90",
+        "change": "+8.4%"
+      },
+      "cvr": {
+        "original": "4.62%",
+        "variant": "4.90%",
+        "change": "+6.1%"
+      },
+      "revenue": {
+        "original": "$13,667.27",
+        "variant": "$13,191.25",
+        "change": "-3.5%"
+      },
+      "aov": {
+        "original": "$164.67",
+        "variant": "$146.57",
+        "change": "-11.0%"
+      },
+      "rpv": {
+        "original": "$7.60",
+        "variant": "$7.18",
+        "change": "-5.6%"
       }
     }
   },
-  "traffic": {
-    "sources": {},
-    "devices": {}
-  }
+  "extractedAt": "2025-06-18T08:38:41.856Z"
 }
 ```
 
