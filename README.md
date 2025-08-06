@@ -92,6 +92,7 @@ The extracted data is structured as follows:
 ```json
 {
   "test": "Experiment name",
+  "version": "2.0.1",
   "store": null,
   "store_url": "store.myshopify.com",
   "configuration": {

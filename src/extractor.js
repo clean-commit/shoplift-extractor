@@ -17,6 +17,7 @@ javascript: (function () {
       // Store our data object that will be populated through multiple pages
       let testData = {
         test: '',
+        version: '2.0.1',
         store: null,
         store_url: null,
         configuration: {},
