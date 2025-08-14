@@ -279,8 +279,9 @@ javascript: (function () {
             'added to cart',
             ['acr', 'add-to-cart rate'],
             'bounce rate',
-            'orders',
+            'conversions',
             ['cvr', 'conversion rate'],
+            'orders',
             'revenue',
             ['aov', 'average order value'],
             ['rpv', 'revenue per visitor'],
@@ -297,13 +298,13 @@ javascript: (function () {
                 if (search.some((s) => headerText.includes(s))) {
                   searchable.splice(i, 1);
                   metricPositions[search[0]] = index;
-                  console.log(`Mapped ${search[0]} to column ${index}`);
+                  // console.log(`Mapped ${search[0]} to column ${index}`);
                   break;
                 }
               } else if (headerText.includes(search)) {
                 searchable.splice(i, 1);
                 metricPositions[search] = index;
-                console.log(`Mapped ${search} to column ${index}`);
+                // console.log(`Mapped ${search} to column ${index}`);
                 break;
               }
             }
