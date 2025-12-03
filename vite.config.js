@@ -72,9 +72,8 @@ export default defineConfig({
   <meta charset="UTF-8">
   <title>Shoplift Data Extractor Bookmarklet</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-    .bookmarklet { display: inline-block; padding: 10px 15px; background: #6d28d9; color: white; 
-                  text-decoration: none; border-radius: 4px; margin: 20px 0; }
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; min-height: 100dvh; }
+    .bookmarklet { display: inline-block; padding: 10px 15px; background: #6d28d9; color: white; text-decoration: none; border-radius: 4px; margin: 20px 0; }
     .instructions { line-height: 1.6; }
     pre { background: #f5f5f5; padding: 15px; overflow: auto; }
     .warning { color: #e53e3e; font-weight: bold; }
@@ -102,6 +101,9 @@ export default defineConfig({
     
     <h2>Bookmarklet Size</h2>
     <p>${sizeKB} KB / ${bookmarklet.length} characters</p>
+  </div>
+  <div style="margin-top: auto;margin-bottom: 10px;">
+    <p>Built by <a href="https://cleancommit.io/">Clean Commit</a>. Check out our <a href="https://cleancommit.io/conversion-rate-optimization-services/">Shopify Conversion Rate Optimization Services</a>.<p>
   </div>
 </body>
 </html>
